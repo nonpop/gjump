@@ -95,12 +95,19 @@ function command(labelDecoration: vscode.TextEditorDecorationType, perform: Acti
 }
 
 function performJump(editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) {
-	for (let i = 0; i < actions.length; i++) {
-		const action = actions[i];
-		const target = targets.get(action);
-		if (target) {
-			editor.selection = new vscode.Selection(target, target);
-		}
+	const action = actions[0];
+	const target = targets.get(action);
+	if (target) {
+		editor.selection = new vscode.Selection(target, target);
+	}
+}
+
+function performSelect(editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) {
+	const curPos = editor.selection.start;
+	const action = actions[0];
+	const targetPos = targets.get(action);
+	if (targetPos) {
+		editor.selection = new vscode.Selection(curPos, targetPos);
 	}
 }
 
@@ -110,6 +117,6 @@ export function activate(context: vscode.ExtensionContext) {
 		opacity: '0',
 	});
 	
-	let disposable = vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, performJump));
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, performJump)));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => command(labelDecoration, performSelect)));
 }
