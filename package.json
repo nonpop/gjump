@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "gjump.helloWorld",
-        "title": "Hello World"
+        "command": "gjump.jump",
+        "title": "gjump jump"
       }
     ]
   },
