@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-const jumpers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const availableLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export function activate(context: vscode.ExtensionContext) {
 	const labelDecoration = vscode.window.createTextEditorDecorationType({
@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 			let needle = "";
 			for (; i < input.length; i++) {
 				const c = input[i];
-				if (jumpers.includes(c)) {
+				if (availableLabels.includes(c)) {
 					break;
 				}
 				needle += c;
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 			let actions = "";
 			for (; i < input.length; i++) {
 				const c = input[i];
-				if (jumpers.includes(c)) {
+				if (availableLabels.includes(c)) {
 					actions += c;
 				}
 			}
@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
 			for (let j = 1; j <= needle.length; j++) {
 				const prefix = needle.slice(0, j);
 				const match = matches.get(prefix);
-				if (!match || match.length > jumpers.length) {
+				if (!match || match.length > availableLabels.length) {
 					continue;
 				}
 				matchForLabels = match;
@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 			for (let i = 0; i < matchForLabels.length; i++) {
 				const match = matchForLabels[i];
 				if (fullMatches.some((fullMatch) => fullMatch.isEqual(match))) {
-					const label = jumpers[i];
+					const label = availableLabels[i];
 					const range = new vscode.Range(match, match.translate(0, 1));
 					const decoration: vscode.DecorationOptions = {
 						range,
