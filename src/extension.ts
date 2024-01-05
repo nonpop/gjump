@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 		opacity: '0',
 	});
 	
-	let disposable = vscode.commands.registerCommand('gjump.jump', () => {
+	let disposable = vscode.commands.registerCommand('gjump.initJump', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			return;

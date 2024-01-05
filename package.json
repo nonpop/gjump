@@ -15,8 +15,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "gjump.jump",
-        "title": "gjump jump"
+        "command": "gjump.initJump",
+        "title": "gjump: initiate jump"
       }
     ]
   },

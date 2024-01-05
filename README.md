@@ -6,7 +6,7 @@
 
 ## Features
 
-- Execute `gjump.jump` from a shortcut
+- Execute `gjump.initJump` from a shortcut
 - Type some characters from where you want to jump to
 - Type the target character to jump
 
