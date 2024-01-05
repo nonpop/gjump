@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		const doc = editor.document;
 		const inputBox = vscode.window.createInputBox();
+		inputBox.title = "Type lowercase letters or symbols";
 
 		inputBox.onDidHide(() => {
 			editor.setDecorations(labelDecoration, []);
@@ -75,6 +76,17 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			let fullMatches = matches.get(needle) ?? [];
+			if (fullMatches.length === 0) {
+				if (needle.length > 0) {
+					inputBox.title = "No matches";
+				} else {
+					inputBox.title = "Type lowercase letters or symbols";
+				}
+			} else if (fullMatches.length > availableLabels.length) {
+				inputBox.title = `${fullMatches.length} matches (type more to narrow down)`;
+			} else {
+				inputBox.title = `${fullMatches.length} matches. Type label to jump`;
+			}
 			const decorations: vscode.DecorationOptions[] = [];
 			const targets = new Map<string, vscode.Position>();
 			for (let i = 0; i < matchForLabels.length; i++) {
