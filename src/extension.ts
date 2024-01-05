@@ -28,7 +28,9 @@ function parseInput(input: string): ParsedInput {
     return { needle, actions };
 }
 
-function command(labelDecoration: vscode.TextEditorDecorationType) {
+type ActionPerformer = (editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) => void;
+
+function command(labelDecoration: vscode.TextEditorDecorationType, perform: ActionPerformer) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -84,16 +86,22 @@ function command(labelDecoration: vscode.TextEditorDecorationType) {
 		}
 		editor.setDecorations(labelDecoration, decorations);
 
-		for (let i = 0; i < actions.length; i++) {
-			const action = actions[i];
-			const target = targets.get(action);
-			if (target) {
-				editor.selection = new vscode.Selection(target, target);
-			}
+		if (actions.length > 0) {
+			perform(editor, targets, actions);
 			inputBox.hide();
 		}
 	});
 	inputBox.show();
+}
+
+function performJump(editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) {
+	for (let i = 0; i < actions.length; i++) {
+		const action = actions[i];
+		const target = targets.get(action);
+		if (target) {
+			editor.selection = new vscode.Selection(target, target);
+		}
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -102,6 +110,6 @@ export function activate(context: vscode.ExtensionContext) {
 		opacity: '0',
 	});
 	
-	let disposable = vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration));
+	let disposable = vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, performJump));
 	context.subscriptions.push(disposable);
 }
