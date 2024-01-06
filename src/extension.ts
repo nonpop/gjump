@@ -50,7 +50,7 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, selectedLa
 	}
 	const doc = editor.document;
 	const inputBox = vscode.window.createInputBox();
-	inputBox.title = "Type lowercase letters or symbols";
+	inputBox.title = "Type lowercase letters or symbols to start";
 
 	inputBox.onDidHide(() => {
 		editor.setDecorations(labelDecoration, []);
@@ -64,11 +64,11 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, selectedLa
 	inputBox.onDidAccept(() => {
 		switch (mode) {
 			case "jump":
-				inputBox.title = "Type a label to jump, or press esc to cancel";
+				inputBox.title = "Type a label to jump to it, or press esc to cancel";
 				break;
 			case "multiJump": {
 				if (curSelectedLabels.size === 0) {
-					inputBox.title = "Type labels to toggle them and enter to jump to all, or press esc to cancel";
+					inputBox.title = "Type labels to toggle them and press enter to set cursors to the selected ones, or press esc to cancel";
 					break;
 				}
 				const newSelections = [];
@@ -83,7 +83,7 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, selectedLa
 				break;
 			}
 			case "select":
-				inputBox.title = "Type a label to select, or press esc to cancel";
+				inputBox.title = "Type a label to select to it, or press esc to cancel";
 				break;
 			}
 	});
@@ -95,7 +95,7 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, selectedLa
 		const rangeTexts = ranges.map((range) => doc.getText(range).toLowerCase());
 		const { labeledMatches, totalMatches } = getMatches(availableLabels, rangeTexts, needle);
 
-		inputBox.title = helpText(totalMatches, labeledMatches.length, needle);
+		inputBox.title = helpText(totalMatches, labeledMatches.length, needle, mode);
 
 		const decorationOptions = [];
 		const selectedDecorationOptions = [];
@@ -174,17 +174,24 @@ function selectedLabelDecorationOptions(pos: vscode.Position, label: string): vs
 	};
 }
 
-function helpText(totalMatches: number, totalTargets: number, needle: string) {
+function helpText(totalMatches: number, totalTargets: number, needle: string, mode: Mode) {
 	if (totalMatches === 0) {
 		if (needle.length > 0) {
 			return "No matches";
 		} else {
-			return "Type lowercase letters or symbols";
+			return "Type lowercase letters or symbols to start";
 		}
 	} else if (totalTargets === 0) {
 		return `${totalMatches} matches (type more to narrow down)`;
 	} else {
-		return `${totalMatches} matches. Type label to jump`;
+		switch (mode) {
+			case "jump":
+				return `${totalMatches} matches. Type a label to jump to it`;
+			case "multiJump":
+				return `${totalMatches} matches. Type labels to toggle them and press enter to set cursors to the selected ones`;
+			case "select":
+				return `${totalMatches} matches. Type a label to select to it`;
+		}
 	}
 }
 
