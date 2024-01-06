@@ -54,17 +54,7 @@ function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 		const rangeTexts = ranges.map((range) => doc.getText(range).toLowerCase());
 		const { labeledMatches, totalMatches } = getMatches(availableLabels, rangeTexts, needle);
 
-		if (totalMatches === 0) {
-			if (needle.length > 0) {
-				inputBox.title = "No matches";
-			} else {
-				inputBox.title = "Type lowercase letters or symbols";
-			}
-		} else if (labeledMatches.length === 0) {
-			inputBox.title = `${totalMatches} matches (type more to narrow down)`;
-		} else {
-			inputBox.title = `${totalMatches} matches. Type label to jump`;
-		}
+		inputBox.title = helpText(totalMatches, labeledMatches.length, needle);
 
 		const decorationOptions = [];
 		const targets = new Map<string, vscode.Position>();
@@ -116,6 +106,20 @@ function labelDecorationOptions(pos: vscode.Position, label: string): vscode.Dec
 			},
 		},
 	};
+}
+
+function helpText(totalMatches: number, totalTargets: number, needle: string) {
+	if (totalMatches === 0) {
+		if (needle.length > 0) {
+			return "No matches";
+		} else {
+			return "Type lowercase letters or symbols";
+		}
+	} else if (totalTargets === 0) {
+		return `${totalMatches} matches (type more to narrow down)`;
+	} else {
+		return `${totalMatches} matches. Type label to jump`;
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {
