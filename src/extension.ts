@@ -66,25 +66,15 @@ function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 			inputBox.title = `${totalMatches} matches. Type label to jump`;
 		}
 
-		const decorations: vscode.DecorationOptions[] = [];
+		const decorationOptions = [];
 		const targets = new Map<string, vscode.Position>();
 		for (const match of labeledMatches) {
 			const range = ranges[match.rangeIndex];
 			const pos = doc.positionAt(doc.offsetAt(range.start) + match.offsetIntoRangeText);
-			const decoration: vscode.DecorationOptions = {
-				range: new vscode.Range(pos, pos.translate(0, 1)),
-				renderOptions: {
-					before: {
-						contentText: match.label,
-						color: "red",
-						width: "0",
-					},
-				},
-			};
-			decorations.push(decoration);
+			decorationOptions.push(labelDecorationOptions(pos, match.label));
 			targets.set(match.label, pos);
 		}
-		editor.setDecorations(labelDecoration, decorations);
+		editor.setDecorations(labelDecoration, decorationOptions);
 
 		if (actions.length > 0) {
 			switch (mode) {
@@ -109,6 +99,19 @@ function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 		}
 	});
 	inputBox.show();
+}
+
+function labelDecorationOptions(pos: vscode.Position, label: string): vscode.DecorationOptions {
+	return {
+		range: new vscode.Range(pos, pos.translate(0, 1)),
+		renderOptions: {
+			before: {
+				contentText: label,
+				color: "red",
+				width: "0",
+			},
+		},
+	};
 }
 
 export function activate(context: vscode.ExtensionContext) {
