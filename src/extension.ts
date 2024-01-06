@@ -28,9 +28,9 @@ function parseInput(input: string): ParsedInput {
     return { needle, actions };
 }
 
-type ActionPerformer = (editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) => void;
+type Mode = "jump" | "select";
 
-function command(labelDecoration: vscode.TextEditorDecorationType, perform: ActionPerformer) {
+function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -87,28 +87,28 @@ function command(labelDecoration: vscode.TextEditorDecorationType, perform: Acti
 		editor.setDecorations(labelDecoration, decorations);
 
 		if (actions.length > 0) {
-			perform(editor, targets, actions);
-			inputBox.hide();
+			switch (mode) {
+				case "jump": {
+					const target = targets.get(actions[0]);
+					if (target) {
+						editor.selection = new vscode.Selection(target, target);
+					}
+					inputBox.hide();
+					break;
+				}
+				case "select": {
+					const curPos = editor.selection.start;
+					const targetPos = targets.get(actions[0]);
+					if (targetPos) {
+						editor.selection = new vscode.Selection(curPos, targetPos);
+					}
+					inputBox.hide();
+					break;
+				}
+			}
 		}
 	});
 	inputBox.show();
-}
-
-function performJump(editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) {
-	const action = actions[0];
-	const target = targets.get(action);
-	if (target) {
-		editor.selection = new vscode.Selection(target, target);
-	}
-}
-
-function performSelect(editor: vscode.TextEditor, targets: Map<string, vscode.Position>, actions: string[]) {
-	const curPos = editor.selection.start;
-	const action = actions[0];
-	const targetPos = targets.get(action);
-	if (targetPos) {
-		editor.selection = new vscode.Selection(curPos, targetPos);
-	}
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -117,6 +117,6 @@ export function activate(context: vscode.ExtensionContext) {
 		opacity: '0',
 	});
 	
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, performJump)));
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => command(labelDecoration, performSelect)));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, "jump")));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => command(labelDecoration, "select")));
 }
