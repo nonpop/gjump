@@ -1,6 +1,7 @@
 {
   "name": "gjump",
   "displayName": "gjump",
+  "publisher": "nonpop",
   "description": "Yet another EasyMotion inspired jumper",
   "version": "0.0.3",
   "repository": "https://github.com/nonpop/gjump",
