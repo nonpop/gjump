@@ -3,7 +3,7 @@
   "displayName": "gjump",
   "publisher": "nonpop",
   "description": "Yet another EasyMotion inspired jumper",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": "https://github.com/nonpop/gjump",
   "engines": {
     "vscode": "^1.85.0"
