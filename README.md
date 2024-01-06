@@ -22,8 +22,6 @@ Next, type one or more labels. These must be entered in uppercase. What happens 
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 0.0.1
+### 0.0.4
 
 Initial release
