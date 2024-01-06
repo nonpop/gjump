@@ -30,7 +30,7 @@ function parseInput(input: string): ParsedInput {
 
 type Mode = "jump" | "select";
 
-function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
+function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -128,6 +128,6 @@ export function activate(context: vscode.ExtensionContext) {
 		opacity: '0',
 	});
 	
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => command(labelDecoration, "jump")));
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => command(labelDecoration, "select")));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => runCommand(labelDecoration, "jump")));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => runCommand(labelDecoration, "select")));
 }
