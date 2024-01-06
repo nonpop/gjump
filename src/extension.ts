@@ -4,8 +4,8 @@ import { getMatches } from './logic';
 const availableLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 type ParsedInput = {
-    needle: string;
-    actions: string[];
+    needle: string,
+    selectedLabels: Set<string>,
 };
 
 function parseInput(input: string): ParsedInput {
@@ -18,14 +18,27 @@ function parseInput(input: string): ParsedInput {
         }
         needle += c;
     }
-    let actions = [];
+    const actions = [];
     for (; i < input.length; i++) {
         const c = input[i];
         if (availableLabels.includes(c)) {
             actions.push(c);
         }
     }
-    return { needle, actions };
+	const selectedLabels = getSelectedLabels(actions);
+    return { needle, selectedLabels };
+}
+
+function getSelectedLabels(actions: string[]): Set<string> {
+	const selected = new Set<string>();
+	for (const action of actions) {
+		if (selected.has(action)) {
+			selected.delete(action);
+		} else {
+			selected.add(action);
+		}
+	}
+	return selected;
 }
 
 type Mode = "jump" | "select";
@@ -49,7 +62,7 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode
 	});
 
 	inputBox.onDidChangeValue((input) => {
-		const { needle, actions } = parseInput(input);
+		const { needle, selectedLabels } = parseInput(input);
 		const ranges = editor.visibleRanges;
 		const rangeTexts = ranges.map((range) => doc.getText(range).toLowerCase());
 		const { labeledMatches, totalMatches } = getMatches(availableLabels, rangeTexts, needle);
@@ -66,23 +79,28 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode
 		}
 		editor.setDecorations(labelDecoration, decorationOptions);
 
-		if (actions.length > 0) {
-			switch (mode) {
-				case "jump":
-					const target = targets.get(actions[0]);
+		switch (mode) {
+			case "jump":
+				for (const label of selectedLabels.values()) {
+					const target = targets.get(label);
 					if (target) {
 						editor.selection = new vscode.Selection(target, target);
 					}
+					inputBox.hide();
 					break;
-				case "select":
+				}
+				break;
+			case "select":
+				for (const label of selectedLabels.values()) {
 					const curPos = editor.selection.start;
-					const targetPos = targets.get(actions[0]);
+					const targetPos = targets.get(label);
 					if (targetPos) {
 						editor.selection = new vscode.Selection(curPos, targetPos);
 					}
+					inputBox.hide();
 					break;
-			}
-			inputBox.hide();
+				}
+				break;
 		}
 	});
 	inputBox.show();
