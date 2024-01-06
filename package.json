@@ -19,6 +19,10 @@
         "title": "gjump: initiate jump"
       },
       {
+        "command": "gjump.initMultiJump",
+        "title": "gjump: initiate multi cursor jump"
+      },
+      {
         "command": "gjump.initSelect",
         "title": "gjump: initiate select"
       }

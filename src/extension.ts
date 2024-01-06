@@ -41,9 +41,9 @@ function getSelectedLabels(actions: string[]): Set<string> {
 	return selected;
 }
 
-type Mode = "jump" | "select";
+type Mode = "jump" | "multiJump" | "select";
 
-function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
+function runCommand(labelDecoration: vscode.TextEditorDecorationType, selectedLabelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
 		return;
@@ -54,15 +54,43 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode
 
 	inputBox.onDidHide(() => {
 		editor.setDecorations(labelDecoration, []);
+		editor.setDecorations(selectedLabelDecoration, []);
 		inputBox.dispose();
 	});
 
+	let curSelectedLabels = new Set<string>();
+	let curTargets = new Map<string, vscode.Position>();
+
 	inputBox.onDidAccept(() => {
-		inputBox.hide();
+		switch (mode) {
+			case "jump":
+				inputBox.title = "Type a label to jump, or press esc to cancel";
+				break;
+			case "multiJump": {
+				if (curSelectedLabels.size === 0) {
+					inputBox.title = "Type labels to toggle them and enter to jump to all, or press esc to cancel";
+					break;
+				}
+				const newSelections = [];
+				for (const label of curSelectedLabels.values()) {
+					const target = curTargets.get(label);
+					if (target) {
+						newSelections.push(new vscode.Selection(target, target));
+					}
+				}
+				editor.selections = newSelections;
+				inputBox.hide();
+				break;
+			}
+			case "select":
+				inputBox.title = "Type a label to select, or press esc to cancel";
+				break;
+			}
 	});
 
 	inputBox.onDidChangeValue((input) => {
 		const { needle, selectedLabels } = parseInput(input);
+		curSelectedLabels = selectedLabels;
 		const ranges = editor.visibleRanges;
 		const rangeTexts = ranges.map((range) => doc.getText(range).toLowerCase());
 		const { labeledMatches, totalMatches } = getMatches(availableLabels, rangeTexts, needle);
@@ -70,14 +98,21 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode
 		inputBox.title = helpText(totalMatches, labeledMatches.length, needle);
 
 		const decorationOptions = [];
+		const selectedDecorationOptions = [];
 		const targets = new Map<string, vscode.Position>();
+		curTargets = targets;
 		for (const match of labeledMatches) {
 			const range = ranges[match.rangeIndex];
 			const pos = positionPlusOffset(doc, range.start, match.offsetIntoRangeText);
-			decorationOptions.push(labelDecorationOptions(pos, match.label));
+			if (selectedLabels.has(match.label)) {
+				selectedDecorationOptions.push(selectedLabelDecorationOptions(pos, match.label));
+			} else {
+				decorationOptions.push(labelDecorationOptions(pos, match.label));
+			}
 			targets.set(match.label, pos);
 		}
 		editor.setDecorations(labelDecoration, decorationOptions);
+		editor.setDecorations(selectedLabelDecoration, selectedDecorationOptions);
 
 		switch (mode) {
 			case "jump":
@@ -89,6 +124,9 @@ function runCommand(labelDecoration: vscode.TextEditorDecorationType, mode: Mode
 					inputBox.hide();
 					break;
 				}
+				break;
+			case "multiJump":
+				// multiJump action is handled in onDidAccept
 				break;
 			case "select":
 				for (const label of selectedLabels.values()) {
@@ -123,6 +161,19 @@ function labelDecorationOptions(pos: vscode.Position, label: string): vscode.Dec
 	};
 }
 
+function selectedLabelDecorationOptions(pos: vscode.Position, label: string): vscode.DecorationOptions {
+	return {
+		range: new vscode.Range(pos, pos.translate(0, 1)),
+		renderOptions: {
+			before: {
+				contentText: label,
+				color: "yellow",
+				width: "0",
+			},
+		},
+	};
+}
+
 function helpText(totalMatches: number, totalTargets: number, needle: string) {
 	if (totalMatches === 0) {
 		if (needle.length > 0) {
@@ -142,7 +193,18 @@ export function activate(context: vscode.ExtensionContext) {
 		backgroundColor: 'yellow',
 		opacity: '0',
 	});
+	const selectedLabelDecoration = vscode.window.createTextEditorDecorationType({
+		backgroundColor: 'red',
+		opacity: '0',
+	});
 	
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () => runCommand(labelDecoration, "jump")));
-	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () => runCommand(labelDecoration, "select")));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initJump', () =>
+		runCommand(labelDecoration, selectedLabelDecoration, "jump")
+	));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initMultiJump', () =>
+		runCommand(labelDecoration, selectedLabelDecoration, "multiJump")
+	));
+	context.subscriptions.push(vscode.commands.registerCommand('gjump.initSelect', () =>
+		runCommand(labelDecoration, selectedLabelDecoration, "select")
+	));
 }
