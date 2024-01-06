@@ -39,7 +39,7 @@ function getLabelableMatches(availableLabels: string[], matchesByPrefix: Map<str
     return [];
 }
 
-type LabeledMatch = {
+export type LabeledMatch = {
     rangeIndex: number;
     offsetIntoRangeText: number;
     label: string;
@@ -57,7 +57,7 @@ function getLabeledMatches(availableLabels: string[], labelableMatches: Match[],
     return labeledMatches;
 }
 
-type Matches = {
+export type Matches = {
     labeledMatches: LabeledMatch[];
     totalMatches: number;
 };
