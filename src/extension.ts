@@ -70,7 +70,7 @@ function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 		const targets = new Map<string, vscode.Position>();
 		for (const match of labeledMatches) {
 			const range = ranges[match.rangeIndex];
-			const pos = doc.positionAt(doc.offsetAt(range.start) + match.offsetIntoRangeText);
+			const pos = positionPlusOffset(doc, range.start, match.offsetIntoRangeText);
 			decorationOptions.push(labelDecorationOptions(pos, match.label));
 			targets.set(match.label, pos);
 		}
@@ -99,6 +99,10 @@ function command(labelDecoration: vscode.TextEditorDecorationType, mode: Mode) {
 		}
 	});
 	inputBox.show();
+}
+
+function positionPlusOffset(doc: vscode.TextDocument, pos: vscode.Position, offset: number): vscode.Position {
+	return doc.positionAt(doc.offsetAt(pos) + offset);
 }
 
 function labelDecorationOptions(pos: vscode.Position, label: string): vscode.DecorationOptions {
