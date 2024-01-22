@@ -26,6 +26,10 @@ Next, type one or more labels. These must be entered in uppercase. What happens 
 
 ## Release Notes
 
+### 0.0.5
+
+Add demo gif to README
+
 ### 0.0.4
 
 Initial release
