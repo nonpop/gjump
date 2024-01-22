@@ -2,6 +2,10 @@
 
 `gjump` is yet another [EasyMotion](https://github.com/easymotion/vim-easymotion) inspired movement plugin. The most similar extension I know of is [Find Then Jump](https://marketplace.visualstudio.com/items?itemName=tranhl.find-then-jump).
 
+Demo of jump and multi jump commands:
+
+![feature X](images/demo.gif)
+
 ## Features
 
 There are three commands:

@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+- Add demo gif to README
+
 ## [0.0.4] - 2024-01-06
 
 - Initial release
