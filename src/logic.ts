@@ -17,7 +17,7 @@ function getMatchesByPrefix(rangeTexts: string[], needle: string): Map<string, M
                 }
                 const prefix = needle.slice(0, j);
                 if (text.slice(i, i+j) === prefix) {
-                    if (!matchesByPrefix.has(prefix)){
+                    if (!matchesByPrefix.has(prefix)) {
                         matchesByPrefix.set(prefix, []);
                     }
                     matchesByPrefix.get(prefix)!.push({ rangeIndex: index, offsetIntoRangeText: i });
